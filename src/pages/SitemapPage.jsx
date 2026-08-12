@@ -3,8 +3,8 @@ import PageEditorShell, { AddItemButton, DeleteItemButton } from '../components/
 import { EditableText } from '../components/Editable'
 import BlockEditor from '../components/BlockEditor'
 import HeroParagraphsEditor from '../components/HeroParagraphsEditor'
-import { SITEMAP_PAGE_ID, sitemapContentData, normalizeSitemapContent, saveSitemapContent } from '../../../shared/content/sitemapContent'
-import { newBullets } from '../../../shared/content/blocks'
+import { SITEMAP_PAGE_ID, sitemapContentData, normalizeSitemapContent, saveSitemapContent } from '../shared/content/sitemapContent'
+import { newBullets } from '../shared/content/blocks'
 
 // Editable banner matching the public PageBanner styling.
 function EditableBanner({ content, editorMode, update, addItem, removeItem }) {

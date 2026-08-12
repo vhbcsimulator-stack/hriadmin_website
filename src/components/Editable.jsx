@@ -14,8 +14,8 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined'
-import { ICON_GALLERY_URL, SUGGESTED_ICONS } from '../../../shared/content/icons'
-import MaterialSymbol from '../../../shared/content/MaterialSymbol'
+import { ICON_GALLERY_URL, SUGGESTED_ICONS } from '../shared/content/icons'
+import MaterialSymbol from '../shared/content/MaterialSymbol'
 import { ACCEPT_ATTR, imageFromDataTransfer, uploadImage } from '../content/imageUpload'
 
 // Set a value at a dot-separated path inside a nested object/array structure.

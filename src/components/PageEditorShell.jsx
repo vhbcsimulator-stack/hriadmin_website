@@ -22,6 +22,7 @@ import UndoIcon from '@mui/icons-material/Undo'
 import RedoIcon from '@mui/icons-material/Redo'
 import useDraftHistory from '../hooks/useDraftHistory'
 import UnsavedChangesDialog from './UnsavedChangesDialog'
+import ContentLoadError from './ContentLoadError'
 import { setDeep, getDeep } from './Editable'
 
 // Fallback until the real Navbar is measured (matches its Toolbar minHeight).
@@ -52,7 +53,7 @@ function useNavHeight() {
 // the render function the draft plus update/addItem/removeItem helpers, and
 // pins an Edit/Preview + Save toolbar directly under the site navbar.
 export default function PageEditorShell({ pageId, title, defaults, saveContent, normalize, children }) {
-  const { data: saved, error: loadError } = usePageContent(pageId, defaults)
+  const { data: saved, error: loadError, refetch } = usePageContent(pageId, defaults)
   const save = useSavePageContent(pageId, saveContent)
 
   // `content` is the draft being edited — client state, not server state, so it
@@ -307,8 +308,12 @@ export default function PageEditorShell({ pageId, title, defaults, saveContent, 
         },
       }} />
 
+      {/* No content and a load failure is terminal: there is no cached copy to
+          fall back to, so the editor must not sit on a spinner forever. */}
       {content ? (
         children({ content, editorMode, update, addItem, removeItem, handleSave, saveState })
+      ) : loadError ? (
+        <ContentLoadError error={loadError} onRetry={() => refetch()} />
       ) : (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 20 }}>
           <CircularProgress />

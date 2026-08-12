@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import contentSnapshot from '../../../content/site-content.json'
+import contentSnapshot from '../../content/site-content.json'
 import './content-manager.css'
 
 const EDITABLE_SELECTOR = [

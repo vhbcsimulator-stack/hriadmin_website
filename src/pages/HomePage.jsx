@@ -14,8 +14,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
 import PageEditorShell, { AddItemButton, DeleteItemButton } from '../components/PageEditorShell'
 import { EditableText, ImageEditButton, IconPicker, ColorPicker } from '../components/Editable'
-import MaterialSymbol from '../../../shared/content/MaterialSymbol'
-import { HOME_PAGE_ID, homeContentData, saveHomeContent } from '../../../shared/content/homeContent'
+import MaterialSymbol from '../shared/content/MaterialSymbol'
+import { HOME_PAGE_ID, homeContentData, saveHomeContent } from '../shared/content/homeContent'
 
 // Geometry of the hero's split layout — kept in step with the public page's
 // Hero so the editor previews what visitors get. Both the photo panel and the

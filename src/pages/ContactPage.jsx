@@ -9,8 +9,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import PageEditorShell, { AddItemButton, DeleteItemButton } from '../components/PageEditorShell'
 import { EditableText, IconPicker } from '../components/Editable'
-import MaterialSymbol from '../../../shared/content/MaterialSymbol'
-import { CONTACT_PAGE_ID, contactContentData, saveContactContent } from '../../../shared/content/contactContent'
+import MaterialSymbol from '../shared/content/MaterialSymbol'
+import { CONTACT_PAGE_ID, contactContentData, saveContactContent } from '../shared/content/contactContent'
 
 const PROPERTY_OPTIONS = ['Residential', 'Commercial']
 

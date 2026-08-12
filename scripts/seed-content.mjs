@@ -21,7 +21,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const envFile = path.join(here, '..', '.env')
-const contentFile = path.join(here, '..', '..', 'content', 'site-content.json')
+const contentFile = path.join(here, '..', 'content', 'site-content.json')
 
 // Minimal .env reader so the script needs no extra dependency.
 async function loadEnvFile(file) {

@@ -1,7 +1,7 @@
 import { Box, Stack } from '@mui/material'
 import { AddItemButton, DeleteItemButton } from './PageEditorShell'
 import { EditableText } from './Editable'
-import { BULLETS, newBullets, newParagraph } from '../../../shared/content/blocks'
+import { BULLETS, newBullets, newParagraph } from '../shared/content/blocks'
 
 // Editor for a section body — a mixed list of paragraph and bullet-list blocks.
 // Mirrors the public ContentBlocks renderer so preview mode matches the site.

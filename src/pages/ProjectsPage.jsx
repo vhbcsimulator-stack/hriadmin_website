@@ -9,8 +9,9 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined'
-import { PROJECTS_PAGE_ID, projectsContentData, saveProjectsContent, newProject } from '../../../shared/content/projectsContent'
+import { PROJECTS_PAGE_ID, projectsContentData, saveProjectsContent, newProject } from '../shared/content/projectsContent'
 import { usePageContent, useSavePageContent } from '../hooks/useSiteContent'
+import ContentLoadError from '../components/ContentLoadError'
 
 // Admin workspace: manage the project list that feeds the public /projects
 // showcase and every /project-details page. CRUD persists through the shared
@@ -20,7 +21,7 @@ export default function ProjectsPage() {
   // This page adds and deletes whole projects, which are saved immediately —
   // there is no draft to protect, so it reads the cached content directly
   // instead of copying it into state.
-  const { data: content, error: loadError } = usePageContent(PROJECTS_PAGE_ID, projectsContentData)
+  const { data: content, error: loadError, refetch } = usePageContent(PROJECTS_PAGE_ID, projectsContentData)
   const save = useSavePageContent(PROJECTS_PAGE_ID, saveProjectsContent)
   const [dismissedError, setDismissedError] = useState(null)
   const [confirm, setConfirm] = useState(null) // index pending deletion
@@ -53,6 +54,12 @@ export default function ProjectsPage() {
     setConfirm(null)
     const next = { ...content, projects: content.projects.filter((_, i) => i !== index) }
     await persist(next)
+  }
+
+  // There is no offline copy to fall back to, so a failed read is terminal
+  // rather than a spinner that never resolves.
+  if (!content && loadError) {
+    return <ContentLoadError error={loadError} onRetry={() => refetch()} />
   }
 
   if (!content) {

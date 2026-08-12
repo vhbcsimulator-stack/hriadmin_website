@@ -1,8 +1,8 @@
 import { Box, Container, Typography, Stack, Button } from '@mui/material'
 import PageEditorShell, { AddItemButton, DeleteItemButton } from '../components/PageEditorShell'
 import { EditableText, ImageEditButton, IconPicker } from '../components/Editable'
-import MaterialSymbol from '../../../shared/content/MaterialSymbol'
-import { ABOUT_PAGE_ID, aboutContentData, saveAboutContent } from '../../../shared/content/aboutContent'
+import MaterialSymbol from '../shared/content/MaterialSymbol'
+import { ABOUT_PAGE_ID, aboutContentData, saveAboutContent } from '../shared/content/aboutContent'
 
 // Brand accent: interlocking blue/green rings used above section titles.
 function BrandCircles({ size = 52 }) {

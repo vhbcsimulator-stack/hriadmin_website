@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { loadDocument, mergeWithDefaults } from '../lib/contentStore'
+import { loadDocument, mergeWithDefaults, MissingPageError } from '../lib/contentStore'
 
 // One cache entry for the whole content document, exactly as on the public
 // site. Every editor page reads its own slice out of this shared copy, so
@@ -12,16 +12,42 @@ export const siteContentQuery = {
   queryFn: loadDocument,
 }
 
+// Distinguishes "this page has no row" from "the row is there but empty".
+const MISSING = Symbol('missing-page')
+
 // The server's copy of one page, merged over the code defaults.
+//
+// A page with no row in Supabase resolves as an error, not as the code
+// defaults. Showing the defaults would put sample content in front of the user
+// as though it were live, and saving it would write that invention into the
+// table. The defaults still top up individual fields of a row that does exist,
+// which is what keeps older content working after a section is added.
 export function usePageContent(pageId, defaults) {
   // Memoised: react-query re-runs `select` whenever the function identity
   // changes, and an inline arrow would rebuild the merged content every render.
   const select = useCallback(
-    (document) => mergeWithDefaults(defaults, document.pages?.[pageId]),
+    (document) => {
+      const stored = document.pages?.[pageId]
+      if (stored === undefined || stored === null) return MISSING
+      return mergeWithDefaults(defaults, stored)
+    },
     [pageId, defaults],
   )
 
-  return useQuery({ ...siteContentQuery, select })
+  const query = useQuery({ ...siteContentQuery, select })
+
+  // Stable identity: the editors keep a dismissed error snackbar closed by
+  // comparing the failure they showed against the current one, so a fresh
+  // Error object each render would reopen it forever.
+  const missingError = useMemo(() => new MissingPageError(pageId), [pageId])
+
+  // Reported through `error` rather than thrown from `select`, so the failure
+  // reaches callers the same way a transport failure does.
+  if (query.data === MISSING) {
+    return { ...query, data: undefined, error: missingError, isError: true, isSuccess: false }
+  }
+
+  return query
 }
 
 // Saves one page, then writes the result straight into the cached document.

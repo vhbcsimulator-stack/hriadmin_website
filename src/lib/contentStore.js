@@ -1,16 +1,20 @@
 import { supabase, isSupabaseConfigured, CONTENT_TABLE } from './supabaseClient'
 
 // The admin app's content backend — the read/write counterpart to the public
-// site's read-only store. `shared/content/*.js` reaches this through the
+// site's read-only store. `src/shared/content/*.js` reaches this through the
 // `@content-backend` alias declared in admin/vite.config.js.
 //
-// Without Supabase configured it keeps talking to the dev-only /api/content
-// middleware over content/site-content.json, so the editor works before .env
-// is filled in.
-const LS_KEY = 'hri_site_content'
+// Supabase is the only source of content here. Every read either reaches the
+// table or fails loudly; the only cache in front of it is react-query's, in
+// src/lib/queryClient.js. There is deliberately no localStorage mirror and no
+// code-defaults fallback for a page that is missing from the table: an editor
+// that silently shows something other than the live row invites the user to
+// save it back, overwriting real content with a stale or invented copy.
 
 // Fill any fields missing from stored content with the code defaults, so pages
-// keep working when new sections are added after content was saved.
+// keep working when new sections are added to a page after its content was
+// saved. This only ever tops up a row that exists — it is a schema backfill,
+// not a stand-in for content that failed to load.
 const mergeWithDefaults = (defaults, stored) => {
   if (stored === undefined || stored === null) return defaults
   if (Array.isArray(stored)) return stored
@@ -24,25 +28,24 @@ const mergeWithDefaults = (defaults, stored) => {
   return stored
 }
 
-const emptyDocument = () => ({ version: 1, updatedAt: null, pages: {} })
-
 // Exported for useSiteContent, which merges against the cached document.
 export { mergeWithDefaults }
 
-const readLocal = () => {
-  try {
-    const raw = localStorage.getItem(LS_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
+// Thrown when a page has no row in the table. Carries a marker so callers can
+// tell "nothing saved for this page yet" apart from a transport failure.
+export class MissingPageError extends Error {
+  constructor(pageId) {
+    super(`No saved content for “${pageId}”. This page has no row in Supabase yet.`)
+    this.name = 'MissingPageError'
+    this.pageId = pageId
   }
 }
 
-const writeLocal = (document) => {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(document))
-  } catch (error) {
-    console.error('Failed to cache site content in localStorage:', error)
+const requireSupabase = () => {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in admin/.env.',
+    )
   }
 }
 
@@ -52,71 +55,36 @@ const rowsToDocument = (rows) => ({
   pages: Object.fromEntries(rows.map((row) => [row.page_id, row.content])),
 })
 
-// Newest available copy of the whole content document.
+// The whole content document, straight from Supabase. Throws rather than
+// returning a fallback, so react-query records the failure and the editors show
+// it instead of rendering content that isn't really there.
 export const loadDocument = async () => {
-  if (isSupabaseConfigured) {
-    const { data, error } = await supabase
-      .from(CONTENT_TABLE)
-      .select('page_id, content, updated_at')
-    if (error) {
-      console.error('Failed to load site content from Supabase:', error.message)
-      return readLocal() || emptyDocument()
-    }
-    const document = rowsToDocument(data || [])
-    writeLocal(document)
-    return document
-  }
+  requireSupabase()
 
-  try {
-    const response = await fetch('/api/content', { cache: 'no-store' })
-    if (response.ok) {
-      const document = await response.json()
-      writeLocal(document)
-      return document
-    }
-  } catch {
-    // No content service — fall through to whatever the browser cached.
-  }
-  return readLocal() || emptyDocument()
+  const { data, error } = await supabase
+    .from(CONTENT_TABLE)
+    .select('page_id, content, updated_at')
+  if (error) throw new Error(`Could not load site content: ${error.message}`)
+
+  return rowsToDocument(data || [])
 }
 
+// One page, merged over the code defaults. Kept for the `@content-backend`
+// contract that src/shared/content/*.js is written against; the editors read
+// through usePageContent instead.
 export const fetchPageContent = async (pageId, defaults) => {
-  try {
-    const document = await loadDocument()
-    return mergeWithDefaults(defaults, document.pages?.[pageId])
-  } catch (error) {
-    console.error(`Failed to load site content "${pageId}":`, error)
-    return defaults
-  }
+  const document = await loadDocument()
+  const stored = document.pages?.[pageId]
+  if (stored === undefined || stored === null) throw new MissingPageError(pageId)
+  return mergeWithDefaults(defaults, stored)
 }
 
 export const persistPageContent = async (pageId, content) => {
-  if (isSupabaseConfigured) {
-    // One row per page, so saving a page can never clobber another page.
-    const { error } = await supabase
-      .from(CONTENT_TABLE)
-      .upsert({ page_id: pageId, content, updated_at: new Date().toISOString() }, { onConflict: 'page_id' })
-    if (error) throw new Error(error.message)
+  requireSupabase()
 
-    const cached = readLocal() || emptyDocument()
-    writeLocal({ ...cached, pages: { ...(cached.pages || {}), [pageId]: content } })
-    return
-  }
-
-  // Re-read first so saving one page never clobbers another page's content.
-  const current = await loadDocument()
-  const next = {
-    ...emptyDocument(),
-    ...current,
-    pages: { ...(current.pages || {}), [pageId]: content },
-  }
-  writeLocal(next)
-
-  const response = await fetch('/api/content', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(next),
-  })
-  if (!response.ok) throw new Error('The local content service is unavailable.')
-  writeLocal(await response.json())
+  // One row per page, so saving a page can never clobber another page.
+  const { error } = await supabase
+    .from(CONTENT_TABLE)
+    .upsert({ page_id: pageId, content, updated_at: new Date().toISOString() }, { onConflict: 'page_id' })
+  if (error) throw new Error(`Could not save site content: ${error.message}`)
 }

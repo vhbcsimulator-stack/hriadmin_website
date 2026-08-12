@@ -5,8 +5,8 @@ import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PageEditorShell, { AddItemButton, DeleteItemButton } from '../components/PageEditorShell'
 import { EditableText, ImageEditButton, IconPicker } from '../components/Editable'
-import MaterialSymbol from '../../../shared/content/MaterialSymbol'
-import { PROJECTS_PAGE_ID, projectsContentData, saveProjectsContent } from '../../../shared/content/projectsContent'
+import MaterialSymbol from '../shared/content/MaterialSymbol'
+import { PROJECTS_PAGE_ID, projectsContentData, saveProjectsContent } from '../shared/content/projectsContent'
 
 // Underlined form field styled for the dark green enquiry section.
 const whiteField = {
