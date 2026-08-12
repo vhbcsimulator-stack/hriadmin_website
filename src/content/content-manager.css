@@ -1,0 +1,58 @@
+.cms-editable {
+  outline: 1px dashed rgba(255, 176, 0, .95) !important;
+  outline-offset: 4px;
+  cursor: text !important;
+  border-radius: 2px;
+}
+
+.cms-editable:focus {
+  outline: 3px solid #ffb000 !important;
+  background: rgba(255, 244, 204, .18) !important;
+}
+
+.cms-editable-image {
+  outline: 2px dashed rgba(76, 192, 255, .9) !important;
+  outline-offset: -3px;
+  cursor: copy !important;
+}
+
+.cms-toolbar {
+  position: fixed;
+  z-index: 99999;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  color: #fff;
+  background: #102117;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 12px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, .35);
+  font: 14px/1.35 Arial, sans-serif;
+}
+
+.cms-toolbar div { display: grid; margin-right: auto; }
+.cms-toolbar span { color: rgba(255, 255, 255, .7); font-size: 12px; }
+.cms-toolbar .cms-status { color: #b9f6c7; }
+.cms-toolbar button {
+  padding: 10px 14px;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 7px;
+  cursor: pointer;
+}
+.cms-toolbar .cms-save {
+  color: #06370f;
+  background: #a7efb4;
+  border-color: #a7efb4;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .cms-toolbar { flex-wrap: wrap; }
+  .cms-toolbar div { width: 100%; }
+}
