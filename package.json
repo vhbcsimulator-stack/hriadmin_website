@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "seed:content": "node scripts/seed-content.mjs",
+    "pull:content": "node scripts/pull-content.mjs",
     "sync:shared": "node scripts/sync-shared.mjs"
   },
   "dependencies": {
