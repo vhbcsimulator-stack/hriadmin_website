@@ -168,7 +168,7 @@ function CoreValues({ content, editorMode, update, addItem, removeItem }) {
               {editorMode === 'edit' && (
                 <DeleteItemButton onDelete={() => removeItem('coreValues.items', index)} sx={{ top: 6, left: 'auto', right: 6 }} />
               )}
-              <Box className="valueIcon" sx={{ color: 'secondary.main', mb: 2, transition: 'transform .28s ease' }}>
+              <Box className="valueIcon" sx={{ color: 'GREEN', mb: 2, transition: 'transform .28s ease' }}>
                 <MaterialSymbol name={v.icon} sx={{ fontSize: 34 }} />
               </Box>
               <EditableText
