@@ -27,7 +27,7 @@ const HERO_GUTTER = { xs: 3, sm: 5, md: 8, lg: 10 }
 
 // Hero banner section. Split layout: copy on a light field at left, photo
 // bleeding off the right edge behind a tall convex curve.
-function Hero({ content, editorMode, update }) {
+function Hero({ content, editorMode, update, addItem, removeItem }) {
   const bgRef = useRef(null)
   const isEditing = editorMode === 'edit'
 
@@ -205,6 +205,48 @@ function Hero({ content, editorMode, update }) {
             variant="h1"
             sx={{ fontSize: { xs: 32, sm: 44, md: 52, lg: 68 }, lineHeight: 1.08, color: { xs: '#a8ffa8', md: '#0000b4' }, fontWeight: 700 }}
           />
+          {/* Extra headline lines continue the alternation: title and highlight
+              are lines 0 and 1, so extra line 0 is green, extra line 1 blue. */}
+          {(content.hero.titleExtra || []).map((line, index) => {
+            const accent = index % 2 === 1
+            return (isEditing || line) && (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <EditableText
+                    value={line}
+                    onChange={(value) => update(`hero.titleExtra.${index}`, value)}
+                    editorMode={editorMode}
+                    placeholder="Headline line"
+                    variant="h1"
+                    sx={{
+                      fontSize: { xs: 32, sm: 44, md: 52, lg: 68 }, lineHeight: 1.08,
+                      color: accent ? { xs: '#a8ffa8', md: '#0000b4' } : { xs: '#fff', md: '#024A01' },
+                      fontWeight: accent ? 700 : undefined,
+                    }}
+                  />
+                </Box>
+                {isEditing && (
+                  <DeleteItemButton
+                    onDelete={() => removeItem('hero.titleExtra', index)}
+                    sx={{ position: 'static', mt: 1 }}
+                  />
+                )}
+              </Box>
+            )
+          })}
+          {isEditing && (
+            <Box sx={{ mt: 1.5 }}>
+              <AddItemButton
+                label="Add headline line"
+                sx={{ py: .5, fontSize: 12 }}
+                onClick={() => {
+                  // Content saved before titleExtra existed has no array yet.
+                  if (!content.hero.titleExtra) update('hero.titleExtra', [''])
+                  else addItem('hero.titleExtra', '')
+                }}
+              />
+            </Box>
+          )}
           {/* Rule-and-dot separating the title from the supporting copy. */}
           <Stack direction="row" spacing={1} aria-hidden sx={{ mt: { xs: 2.5, md: 3.5 }, alignItems: 'center' }}>
             <Box sx={{ width: 84, height: 3, bgcolor: { xs: '#a8ffa8', md: '#024A01' } }} />

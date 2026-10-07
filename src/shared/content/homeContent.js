@@ -8,6 +8,9 @@ export const homeContentData = {
     eyebrow: 'Hermosa Residences Inc.',
     title: 'A Property for Today.',
     titleHighlight: 'An Investment for Tomorrow.',
+    // Extra headline lines below the two above. Colours keep alternating:
+    // even lines green, odd lines blue and bold.
+    titleExtra: [],
     subtitle:
       'Explore residential and commercial property opportunities designed to support your lifestyle, business, and long-term goals.',
     primaryCta: 'Explore Properties',
